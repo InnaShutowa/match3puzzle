@@ -1,0 +1,11 @@
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\Match3BaDumtsPuzzleLib.dll
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\Match3BaDumtsPuzzleLib.pdb
+C:\Projects\Match3BaDumtsPuzzleLib\obj\Debug\Match3BaDumtsPuzzleLib.csprojAssemblyReference.cache
+C:\Projects\Match3BaDumtsPuzzleLib\obj\Debug\Match3BaDumtsPuzzleLib.csproj.CoreCompileInputs.cache
+C:\Projects\Match3BaDumtsPuzzleLib\obj\Debug\Match3BaDumtsPuzzleLib.dll
+C:\Projects\Match3BaDumtsPuzzleLib\obj\Debug\Match3BaDumtsPuzzleLib.pdb
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\UnityEngine.CoreModule.dll
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\UnityEngine.SharedInternalsModule.dll
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\UnityEngine.CoreModule.xml
+C:\Projects\Match3BaDumtsPuzzleLib\bin\Debug\UnityEngine.SharedInternalsModule.xml
+C:\Projects\Match3BaDumtsPuzzleLib\obj\Debug\Match3BaDumtsPuzzleLib.csproj.CopyComplete
