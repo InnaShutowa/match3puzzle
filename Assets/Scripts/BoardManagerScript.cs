@@ -14,7 +14,6 @@ public class BoardManagerScript : MonoBehaviour {
 
     public static BoardManagerScript instance;
     public List<Sprite> characters = new List<Sprite>();
-    public List<Vector2> vector2s = new List<Vector2> { Vector2.right, Vector2.left, Vector2.up, Vector2.down };
 
     public GameObject tile;
 
@@ -123,7 +122,7 @@ public class BoardManagerScript : MonoBehaviour {
             }
         }
 
-        this.mixElements();
+        tiles = GameplayManager.MixElements(tiles, xSize, ySize, characters);
     }
 
     void turnPaneAndTiles(bool state) {
@@ -151,26 +150,6 @@ public class BoardManagerScript : MonoBehaviour {
         if (totalPoints >= totalPointsToWin) this.gameOver(true);
     }
 
-
-    void createExamplePartOfTiles(float startX, float startY, Vector2 offset) {
-        Sprite newSpriteForExample = characters[0];
-        Sprite newSpriteForExampleDiff = characters[1];
-
-        for (int x = 0; x < 4; x++) {
-            GameObject newTileForExample = Instantiate(tile,
-                    new Vector3(startX + (offset.x * x), startY + (offset.y * 0), 0),
-                    tile.transform.rotation);
-
-            if (x != 2) newTileForExample.GetComponent<SpriteRenderer>().sprite = newSpriteForExample;
-            else newTileForExample.GetComponent<SpriteRenderer>().sprite = newSpriteForExampleDiff;
-
-            newTileForExample.transform.parent = tile.transform.parent;
-            newTileForExample.name = "TileClone" + x + 0;
-            newTileForExample.SetActive(true);
-            tiles[x, 0] = newTileForExample;
-        }
-    }
-
     IEnumerator showExample() {
         tiles[3, 0].GetComponent<SingleTileScript>().select();
         yield return new WaitForSeconds(0.2f);
@@ -193,7 +172,7 @@ public class BoardManagerScript : MonoBehaviour {
         float startX = transform.position.x;
         float startY = transform.position.y;
 
-        this.createExamplePartOfTiles(startX, startY, offset);
+        GameplayManager.CreateExamplePartOfTiles(startX, startY, offset, tiles, characters, tile);
         
         for (int x = 0; x < this.xSize; x++) {
             for (int y = 0; y < this.ySize; y++) {
@@ -212,52 +191,12 @@ public class BoardManagerScript : MonoBehaviour {
             }
         }
 
-        this.mixElements();
+        tiles = GameplayManager.MixElements(tiles, xSize, ySize, characters);
 
         yield return StartCoroutine(showExample());
     }
 
-    public void mixElements() {
-        for (int x = 0; x < this.xSize; x++) {
-            for (int y = 0; y < this.ySize; y++) {
-
-                if (y == 0 && x < 4) continue;
-                if (checkCount(tiles[x, y], new List<GameObject>()).Count >= 3) {
-                    // чтобы случайно не зарандомить такой же элемент
-                    while (true) {
-                        Sprite newSprite = characters[Random.Range(0, characters.Count)];
-                        if (!newSprite.Equals(tiles[x, y].GetComponent<SpriteRenderer>().sprite)) {
-                            tiles[x, y].GetComponent<SpriteRenderer>().sprite = newSprite;
-                            if (checkCount(tiles[x, y], new List<GameObject>()).Count < 2) break;
-                        }
-                    }
-
-                }
-
-            }
-        }
-    }
-
-    // проверяем, что не менее 2-х аналогичных пересекается
-    public List<GameObject> checkCount(GameObject tile, List<GameObject> commonMatchTiles) {
-
-        while (true) {
-            var matchingTiles = this.findMatch(tile);
-
-            matchingTiles.ForEach(tileFound => {
-                if (!commonMatchTiles.Contains(tileFound)) {
-                    commonMatchTiles.Add(tileFound);
-                    commonMatchTiles = checkCount(tileFound, commonMatchTiles);
-                }
-            });
-            break;
-        }
-
-        return commonMatchTiles;
-
-    }
-
-
+ 
 
     public IEnumerator checkTilesAfterCleanMatches() {
         var buff = true;
@@ -268,7 +207,7 @@ public class BoardManagerScript : MonoBehaviour {
                 for (int y = 0; y < ySize; y++) {
 
                     if (tiles[x, y].GetComponent<SpriteRenderer>().sprite != null
-                        && checkCount(tiles[x, y], new List<GameObject>()).Count >= 3) {
+                        && GameplayManager.CheckCount(tiles[x, y], new List<GameObject>()).Count >= 3) {
                         this.totalPoints += tiles[x, y].GetComponent<SingleTileScript>().clearMatch();
                         buff = true;
                         break;
@@ -293,7 +232,7 @@ public class BoardManagerScript : MonoBehaviour {
                         Sprite newSprite = characters[Random.Range(0, characters.Count)];
                         if (!newSprite.Equals(tiles[x, y].GetComponent<SpriteRenderer>().sprite)) {
                             tiles[x, y].GetComponent<SpriteRenderer>().sprite = newSprite;
-                            if (checkCount(tiles[x, y], new List<GameObject>()).Count < 2) {
+                            if (GameplayManager.CheckCount(tiles[x, y], new List<GameObject>()).Count < 2) {
                                 yield return new WaitForSeconds(0.1f);
                                 break;
                             }
@@ -305,22 +244,6 @@ public class BoardManagerScript : MonoBehaviour {
         }
     }
 
-    // собирает все элементы такого типа вокруг
-    public List<GameObject> findMatch(GameObject startGameObject) {
-        List<GameObject> matchingTiles = new List<GameObject>();
-
-        this.vector2s.ForEach(vector => {
-            RaycastHit2D hit = Physics2D.Raycast(startGameObject.transform.position, vector);
-
-            if (hit.collider != null &&
-                hit.collider.GetComponent<SpriteRenderer>().sprite == startGameObject.GetComponent<SpriteRenderer>().sprite) {
-                matchingTiles.Add(hit.collider.gameObject);
-            }
-
-        });
-
-        return matchingTiles;
-    }
 
     public IEnumerator findNullTiles() {
         for (int x = 0; x < xSize; x++) {

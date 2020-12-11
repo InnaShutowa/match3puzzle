@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Match3BaDumtsPuzzleLib.Managers;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -28,7 +29,7 @@ public class SingleTileScript : MonoBehaviour {
             if (previousSelected == null) {
                 this.select();
             } else {
-                if (checkCloseOrFar()) {
+                if (GameplayManager.CheckCloseOrFar(gameObject, previousSelected.gameObject)) {
                     this.swapSprite(previousSelected.render);
 
                     var previousCount = previousSelected.clearMatch();
@@ -87,44 +88,14 @@ public class SingleTileScript : MonoBehaviour {
         render.sprite = tempSprite;
     }
 
-    bool checkCloseOrFar() {
-        List<GameObject> gameObjects = new List<GameObject>();
-
-        var hit = Physics2D.Raycast(previousSelected.transform.localPosition, Vector2.right);
-        var hit1 = Physics2D.Raycast(previousSelected.transform.localPosition, Vector2.left);
-        var hit2 = Physics2D.Raycast(previousSelected.transform.localPosition, Vector2.up);
-        var hit3 = Physics2D.Raycast(previousSelected.transform.localPosition, Vector2.down);
-
-
-        if (hit.collider != null) gameObjects.Add(hit.collider.gameObject);
-        if (hit1.collider != null) gameObjects.Add(hit1.collider.gameObject);
-        if (hit2.collider != null) gameObjects.Add(hit2.collider.gameObject);
-        if (hit3.collider != null) gameObjects.Add(hit3.collider.gameObject);
-
-        if (gameObjects.Contains(gameObject)) return true;
-
-        return false;
-    }
-
-
     public int clearMatch() {
         if (render == null) render = GetComponent<SpriteRenderer>();
         if (render.sprite == null) return 0;
 
-        List<GameObject> matchingTiles = new List<GameObject>();
+        var matchingTilesCount = GameplayManager.ClearMatchAction(gameObject);
+        if (matchingTilesCount > 3) matchFound = true;
 
-        matchingTiles.AddRange(BoardManagerScript.instance.checkCount(gameObject, new List<GameObject>()));
-
-        if (matchingTiles.Count < 3)
-            return 0;
-
-        matchingTiles.ForEach(match => {
-            match.GetComponent<SpriteRenderer>().sprite = null;
-        });
-
-        matchFound = true;
-
-        return matchingTiles.Count;
+        return matchingTilesCount;
     }
 
 }
